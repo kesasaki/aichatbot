@@ -2,13 +2,15 @@
 AIが返答を考えるLINEチャットボットです。
 
 # 開発環境での実行方法
-トークン, シークレットは[LINE Developersコンソール](https://developers.line.biz/console/)と[LINE Official Account Manager](https://manager.line.biz/)を確認する。
+LINEのトークン, シークレットは[LINE Developersコンソール](https://developers.line.biz/console/)と[LINE Official Account Manager](https://manager.line.biz/)を確認する。
+OpenAI APIのキーは設定時に発行したものを利用すること。
 
 ターミナル1
 ```
 export PORT=8080
-export CHANNEL_TOKEN=トークン
-export CHANNEL_SECRET=シークレット
+export LINE_CHANNEL_TOKEN=LINE API トークン
+export LINE_CHANNEL_SECRET=LINE API シークレット
+export OPENAI_API_KEY=OpenAI APIキー
 go run api/main.go
 ```
 

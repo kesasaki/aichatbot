@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/line/line-bot-sdk-go/v7 v7.20.0
+	github.com/sashabaranov/go-openai v1.14.0
 )
 
 require (
