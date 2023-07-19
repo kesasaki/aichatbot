@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
+
+	openai "github.com/sashabaranov/go-openai"
 )
 
 func main() {
@@ -25,8 +28,8 @@ func getTop(c *gin.Context) {
 func postCallback(c *gin.Context) {
 	// bot作成
 	bot, err := linebot.New(
-		os.Getenv("CHANNEL_SECRET"),
-		os.Getenv("CHANNEL_TOKEN"),
+		os.Getenv("LINE_CHANNEL_SECRET"),
+		os.Getenv("LINE_CHANNEL_TOKEN"),
 	)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -43,9 +46,16 @@ func postCallback(c *gin.Context) {
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
+				// 返答文章の取得
+				replyMessage, merr := getResMessage(message.Text)
+				if merr != nil {
+					fmt.Println(merr.Error())
+					return
+				}
+				// 返答
 				_, rerr := bot.ReplyMessage(
 					event.ReplyToken,
-					linebot.NewTextMessage(getResMessage(message.Text)),
+					linebot.NewTextMessage(replyMessage),
 				).Do()
 				if rerr != nil {
 					fmt.Println(rerr.Error())
@@ -55,6 +65,24 @@ func postCallback(c *gin.Context) {
 	}
 }
 
-func getResMessage(message string) string {
-	return "あなたは" + message + "と言いました。"
+func getResMessage(message string) (string, error) {
+	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+	resp, err := client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model: openai.GPT3Dot5Turbo,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: message,
+				},
+			},
+		},
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return resp.Choices[0].Message.Content, nil
 }
