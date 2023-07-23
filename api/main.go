@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 
-	"github.com/sashabaranov/go-openai"
 	openai "github.com/sashabaranov/go-openai"
 )
 
